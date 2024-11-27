@@ -1,11 +1,11 @@
 const express = require('express');
 const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
-const verifyRoleOrToken = require("../middlewares/verifyRoleOrToken");
+const verifyToken = require("../middlewares/verifyToken");
 
 const router = express.Router();
 
-router.get("/:id", verifyRoleOrToken(), (req, res) => {
+router.get("/:id", verifyToken(), (req, res) => {
   const clientId = req.params.id;
   const db = mongoose.connection;
 
@@ -16,7 +16,7 @@ router.get("/:id", verifyRoleOrToken(), (req, res) => {
   })
 });
 
-router.post("/add-deliveryAddress/:id", verifyRoleOrToken(), (req, res) => {
+router.post("/add-deliveryAddress/:id", verifyToken(), (req, res) => {
   const clientId = req.params.id;
   const { newAddress } = req.body;
   const db = mongoose.connection;
@@ -43,7 +43,7 @@ router.post("/add-deliveryAddress/:id", verifyRoleOrToken(), (req, res) => {
   })
 });
 
-router.patch("/update-deliveryAddress/:id", verifyRoleOrToken(), (req, res) => {
+router.patch("/update-deliveryAddress/:id", verifyToken(), (req, res) => {
   const clientId = req.params.id;
   const { address } = req.body;
   const db = mongoose.connection;

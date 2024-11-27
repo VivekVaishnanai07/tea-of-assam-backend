@@ -1,11 +1,11 @@
 const express = require("express");
 const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
-const verifyRoleOrToken = require("../middlewares/verifyRoleOrToken");
+const verifyToken = require("../middlewares/verifyToken");
 
 const route = express.Router();
 
-route.get("/:client_id", verifyRoleOrToken(), (req, res) => {
+route.get("/:client_id", verifyToken(), (req, res) => {
   const client_id = req.params.client_id;
   const db = mongoose.connection;
 
@@ -64,7 +64,7 @@ route.get("/:client_id", verifyRoleOrToken(), (req, res) => {
   })
 });
 
-route.post("/add-cart", verifyRoleOrToken(), (req, res) => {
+route.post("/add-cart", verifyToken(), (req, res) => {
   const { product_id, client_id, quantity } = req.body;
   const db = mongoose.connection;
 
@@ -108,7 +108,7 @@ route.post("/add-cart", verifyRoleOrToken(), (req, res) => {
     });
 });
 
-route.delete("/:client_id/:product_id", verifyRoleOrToken(), (req, res) => {
+route.delete("/:client_id/:product_id", verifyToken(), (req, res) => {
   const { product_id, client_id } = req.params;
   const db = mongoose.connection;
 
@@ -129,7 +129,7 @@ route.delete("/:client_id/:product_id", verifyRoleOrToken(), (req, res) => {
     });
 });
 
-route.patch("/increase-quantity/:client_id/:product_id", verifyRoleOrToken(), (req, res) => {
+route.patch("/increase-quantity/:client_id/:product_id", verifyToken(), (req, res) => {
   const { client_id, product_id } = req.params;
   const db = mongoose.connection;
 
@@ -150,7 +150,7 @@ route.patch("/increase-quantity/:client_id/:product_id", verifyRoleOrToken(), (r
     });
 });
 
-route.patch("/decrease-quantity/:client_id/:product_id", verifyRoleOrToken(), (req, res) => {
+route.patch("/decrease-quantity/:client_id/:product_id", verifyToken(), (req, res) => {
   const { client_id, product_id } = req.params;
   const db = mongoose.connection;
 

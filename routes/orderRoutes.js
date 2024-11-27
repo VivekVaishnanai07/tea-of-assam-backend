@@ -2,12 +2,12 @@ const express = require("express");
 const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
 const { addDays, format, isWeekend, nextMonday } = require("date-fns");
-const verifyRoleOrToken = require("../middlewares/verifyRoleOrToken");
+const verifyToken = require("../middlewares/verifyToken");
 const { sendEmail } = require("../service/emailService");
 
 const route = express.Router();
 
-route.get("/:id", verifyRoleOrToken(), (req, res) => {
+route.get("/:id", verifyToken(), (req, res) => {
   const clientId = req.params.id;
   const db = mongoose.connection;
 
@@ -20,7 +20,7 @@ route.get("/:id", verifyRoleOrToken(), (req, res) => {
     });
 });
 
-route.get("/track/:id", verifyRoleOrToken(), (req, res) => {
+route.get("/track/:id", verifyToken(), (req, res) => {
   const orderId = req.params.id;
   const db = mongoose.connection;
 
@@ -33,7 +33,7 @@ route.get("/track/:id", verifyRoleOrToken(), (req, res) => {
     });
 });
 
-route.post("/place-order", verifyRoleOrToken(), async (req, res) => {
+route.post("/place-order", verifyToken(), async (req, res) => {
   const orderData = req.body;
   const db = mongoose.connection;
 
@@ -311,7 +311,7 @@ route.post("/place-order", verifyRoleOrToken(), async (req, res) => {
     });
 });
 
-route.post("/order-payment", verifyRoleOrToken(), async (req, res) => {
+route.post("/order-payment", verifyToken(), async (req, res) => {
   const orderData = req.body;
   const db = mongoose.connection;
 

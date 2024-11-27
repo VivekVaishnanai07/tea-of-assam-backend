@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 // Middleware to verify token
-const verifyRoleOrToken = () => {
+const verifyToken = () => {
   return (req, res, next) => {
     const tokenWithBearer = req.headers['authorization'];
     const token = tokenWithBearer.substring(7);
@@ -26,4 +26,4 @@ const verifyRoleOrToken = () => {
   };
 };
 
-module.exports = verifyRoleOrToken;
+module.exports = verifyToken;
