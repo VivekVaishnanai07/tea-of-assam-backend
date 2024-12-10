@@ -9,7 +9,7 @@ router.get("/:id", verifyToken(), (req, res) => {
   const clientId = req.params.id;
   const db = mongoose.connection;
 
-  db.collection("tos_clients").findOne({ _id: new ObjectId(clientId) }).then((response) => {
+  db.collection("tos_users").findOne({ _id: new ObjectId(clientId) }).then((response) => {
     return res.send(response);
   }).catch((error) => {
     console.error(error);
@@ -20,7 +20,7 @@ router.post("/add-deliveryAddress/:id", verifyToken(), (req, res) => {
   const clientId = req.params.id;
   const { newAddress } = req.body;
   const db = mongoose.connection;
-  db.collection("tos_clients").updateOne(
+  db.collection("tos_users").updateOne(
     { "_id": new ObjectId(clientId) },
     {
       $push: {
@@ -48,7 +48,7 @@ router.patch("/update-deliveryAddress/:id", verifyToken(), (req, res) => {
   const { address } = req.body;
   const db = mongoose.connection;
 
-  db.collection("tos_clients").updateOne(
+  db.collection("tos_users").updateOne(
     { "_id": new ObjectId(clientId) },
     {
       $set: {

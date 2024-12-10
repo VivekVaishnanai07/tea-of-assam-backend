@@ -29,12 +29,12 @@ route.post("/login", async (req, res) => {
 
   try {
     // Find user by email
-    const user = await db.collection("tos_clients").findOne({ email });
+    const user = await db.collection("tos_users").findOne({ email });
     if (!user) {
       return res.status(400).send('Your Email is incorrect');
     }
 
-    // Check password (assuming you have password hashed and use bcrypt or similar)
+    // Check password (assuming you have password hashed and use or similar)
     if (user.password !== password) {
       return res.status(400).send('Incorrect password');
     }
@@ -157,7 +157,7 @@ route.post("/verify-otp", async (req, res) => {
     delete otpStore[email];
 
     // Generate JWT Token after OTP verification
-    const user = await db.collection("tos_clients").findOne({ email });
+    const user = await db.collection("tos_users").findOne({ email });
 
     if (user.role === 'admin') {
       return res.status(403).send("Access Denied");

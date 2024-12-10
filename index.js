@@ -12,6 +12,10 @@ const wishlistRoutes = require("./routes/wishlistRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 
+// Admin Routes
+const adminLoginRoutes = require("./routes/admin-routes/adminLoginRoutes");
+const dashboardRoutes = require("./routes/admin-routes/dashboardRoutes");
+
 dotenv.config();
 const app = express();
 const server = http.createServer(app);
@@ -29,8 +33,10 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
   })
   .catch((err) => {
     console.log("MongoDB connection error: ", err);
+    process.exit(1); // Exit the process with a failure code
   });
 
+// Public Side Routes
 app.use("/api", loginRoutes);
 app.use("/api/products", productsRoute);
 app.use("/api/gift-products", giftProductsRoute);
@@ -38,6 +44,10 @@ app.use("/api/clients", clientsRoute);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+
+// Admin Side Routes
+app.use("/api/admin", adminLoginRoutes);
+app.use("/api/admin/overview", dashboardRoutes);
 
 
 // Start the server
