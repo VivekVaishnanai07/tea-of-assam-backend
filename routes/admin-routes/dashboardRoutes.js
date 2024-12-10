@@ -105,7 +105,7 @@ route.get("/", verifyToken('admin'), async (req, res) => {
       {
         $group: {
           _id: "$products.category",
-          value: {
+          Value: {
             $sum: {
               $multiply: [
                 "$products.quantity",
@@ -118,7 +118,7 @@ route.get("/", verifyToken('admin'), async (req, res) => {
       {
         $project: {
           name: "$_id",
-          value: 1,
+          Value: 1,
           _id: 0
         }
       }
