@@ -172,6 +172,10 @@ route.post("/verify-otp", async (req, res) => {
     };
 
     const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '24h' });
+    db.collection("tos_users_activity").updateOne(
+      { userId: new ObjectId(user._id) },
+      { $set: { lastLogin: new Date() } });
+
     return res.json({ token });
 
   } catch (err) {

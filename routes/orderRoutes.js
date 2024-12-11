@@ -143,6 +143,9 @@ route.post("/place-order", verifyToken(), async (req, res) => {
     .then(async (response) => {
       if (response.insertedId) {
         db.collection("tos_cart").deleteMany({ client_id: new ObjectId(orderData.clientId) })
+        db.collection("tos_users_activity").updateOne(
+          { userId: new ObjectId(orderData.clientId) },
+          { $set: { lastPurchase: new Date() } });
         res.status(201).json({
           message: "Order placed successfully",
           orderId: response.insertedId,
