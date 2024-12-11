@@ -2,12 +2,12 @@ const express = require("express");
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
-const route = express.Router();
+const router = express.Router();
 
 const db = mongoose.connection;
 
 // Login Route
-route.post("/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -33,4 +33,4 @@ route.post("/login", async (req, res) => {
   }
 });
 
-module.exports = route;
+module.exports = router;

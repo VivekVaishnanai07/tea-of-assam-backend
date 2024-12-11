@@ -3,9 +3,9 @@ const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
 const verifyToken = require("../../middlewares/verifyToken");
 
-const route = express.Router();
+const router = express.Router();
 
-route.get("/", verifyToken('admin'), async (req, res) => {
+router.get("/", verifyToken('admin'), async (req, res) => {
   try {
     const db = mongoose.connection;
 
@@ -139,4 +139,4 @@ route.get("/", verifyToken('admin'), async (req, res) => {
   }
 });
 
-module.exports = route;
+module.exports = router;
