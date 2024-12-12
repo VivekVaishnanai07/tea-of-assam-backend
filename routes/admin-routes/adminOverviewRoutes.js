@@ -98,28 +98,36 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     ]).toArray();
 
     // Category Distribution
-    const categoryDistribution = await db.collection("tos_orders").aggregate([
-      {
-        $unwind: "$products"
-      },
+    const categoryDistribution = await db.collection("tos_products").aggregate([
       {
         $group: {
-          _id: "$products.category",
-          Value: {
-            $sum: {
-              $multiply: [
-                "$products.quantity",
-                { $toDouble: "$products.price" } // Convert price to a number before multiplication
-              ]
-            }
-          }
+          _id: "$category",
+          count: { $sum: 1 }
         }
       },
       {
         $project: {
-          name: "$_id",
-          Value: 1,
+          category: "$_id",
+          count: 1,
           _id: 0
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$count" },
+          categories: { $push: { category: "$category", count: "$count" } }
+        }
+      },
+      {
+        $unwind: "$categories"
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$categories.category",
+          value: "$categories.count",
+          percentage: { $multiply: [{ $divide: ["$categories.count", "$total"] }, 100] }
         }
       }
     ]).toArray();
