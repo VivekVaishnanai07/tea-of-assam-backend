@@ -143,9 +143,26 @@ route.post("/place-order", verifyToken(), async (req, res) => {
     .then(async (response) => {
       if (response.insertedId) {
         db.collection("tos_cart").deleteMany({ client_id: new ObjectId(orderData.clientId) })
+
+        // User Activity Log
         db.collection("tos_users_activity").updateOne(
           { userId: new ObjectId(orderData.clientId) },
           { $set: { lastPurchase: new Date() } });
+
+        // Update Stock and Sales
+        for (const item of orderData.products) {
+          await db.collection("tos_stock_and_sales").updateOne(
+            { "product_id": new ObjectId(item.product_id) },
+            {
+              $inc: {
+                "stock": -item.quantity,
+                "sales": item.quantity,
+              },
+              $set: { "last_update_date": new Date() },
+            }
+          );
+        };
+
         res.status(201).json({
           message: "Order placed successfully",
           orderId: response.insertedId,

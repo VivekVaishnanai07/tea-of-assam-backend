@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require('mongoose');
+const { ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../service/emailService');
 
@@ -172,9 +173,21 @@ route.post("/verify-otp", async (req, res) => {
     };
 
     const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '24h' });
-    db.collection("tos_users_activity").updateOne(
-      { userId: new ObjectId(user._id) },
-      { $set: { lastLogin: new Date() } });
+
+    const userActiveLogFind = await db.collection("tos_users_activity").findOne({ userId: new ObjectId(user._id) });
+    if (userActiveLogFind) {
+      db.collection("tos_users_activity").updateOne(
+        { userId: new ObjectId(user._id) },
+        { $set: { lastLogin: new Date() } });
+    } else {
+      db.collection("tos_users_activity").insertOne(
+        {
+          userId: new ObjectId(user._id),
+          lastLogin: new Date(),
+          lastPurchase: new Date(),
+          lastActivity: new Date()
+        });
+    }
 
     return res.json({ token });
 
