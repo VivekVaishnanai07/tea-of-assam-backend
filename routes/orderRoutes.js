@@ -114,7 +114,7 @@ route.post("/place-order", verifyToken(), async (req, res) => {
   const orderDocument = {
     "client_id": new ObjectId(orderData.clientId),
     "email": orderData.email,
-    "order_date": new Date().toISOString(),
+    "order_date": new Date(),
     "order_status": orderData.orderStatus,
     "products": orderData.products,
     "order_total": orderData.orderTotal,

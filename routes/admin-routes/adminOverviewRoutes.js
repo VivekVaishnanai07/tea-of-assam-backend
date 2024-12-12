@@ -11,22 +11,25 @@ router.get("/", verifyToken('admin'), async (req, res) => {
 
     // Total Sales
     const totalSalesResult = await db.collection('tos_orders').aggregate([
-      { $match: { order_status: "Completed" } }, // Adjust status as needed
+      { $match: { payment_method: "UPI" } || { payment_method: "CARD" } }, // Adjust status as needed
       { $group: { _id: 0, totalSales: { $sum: "$order_total" } } }
     ]).toArray();
     const totalSales = totalSalesResult.length > 0 ? totalSalesResult[0].totalSales : 0;
 
     // New Users (users who registered in the past 30 days)
-    const now = new Date(); // Current date
-    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1); // Start of last month
-    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 1); // Start of current month
-
-    const newUsers = await db.collection('tos_users').countDocuments({
-      createdAt: {
-        $gte: startOfLastMonth.toISOString(),
-        $lt: endOfLastMonth.toISOString()
+    const newUsersResult = await db.collection("tos_users").aggregate([
+      {
+        "$match": {
+          "createdAt": {
+            "$gte": new Date(new Date() - 30 * 24 * 60 * 60 * 1000)  // 7 days ago
+          }
+        }
+      },
+      {
+        "$count": "new_users_count"
       }
-    });
+    ]).toArray();
+    const newUsers = newUsersResult.length > 0 ? newUsersResult[0].new_users_count : 0;
 
     // Total Products
     const totalProductsResult = await db.collection('tos_products').aggregate([
