@@ -210,13 +210,129 @@ router.post("/", verifyToken('admin'), async (req, res) => {
     // Run the aggregation query
     const salesOverview = await db.collection("tos_orders").aggregate(aggregationPipeline).toArray();
 
+    // Category Distribution
+    const salesByCategory = await db.collection("tos_products").aggregate([
+      {
+        $lookup: {
+          from: "tos_stock_and_sales",
+          localField: "_id",
+          foreignField: "product_id",
+          as: "stock_sales_data"
+        }
+      },
+      {
+        $unwind: "$stock_sales_data"
+      },
+      {
+        $group: {
+          _id: "$category",
+          totalSales: { $sum: "$stock_sales_data.sales" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          value: "$totalSales"
+        }
+      }
+    ]).toArray();
+
+    const dailySalesTrend = await db.collection("tos_stock_and_sales").aggregate([
+      {
+        // Step 1: Filter records by the current week
+        $match: {
+          last_update_date: {
+            $gte: new Date(new Date().setDate(new Date().getDate() - new Date().getDay())),
+            $lte: new Date()
+          }
+        }
+      },
+      {
+        // Step 2: Group sales by day of the week
+        $group: {
+          _id: { $dayOfWeek: "$last_update_date" },
+          totalSales: { $sum: "$sales" }
+        }
+      },
+      {
+        // Step 3: Project into intermediate format with day name
+        $project: {
+          _id: 0,
+          dayOfWeek: "$_id",
+          totalSales: 1
+        }
+      },
+      {
+        // Step 4: Add missing days with $facet and merge sales data into all days
+        $facet: {
+          allDays: [
+            {
+              $project: {
+                days: [
+                  { dayOfWeek: 1, name: "Sun", Sales: 0 },
+                  { dayOfWeek: 2, name: "Mon", Sales: 0 },
+                  { dayOfWeek: 3, name: "Tue", Sales: 0 },
+                  { dayOfWeek: 4, name: "Wed", Sales: 0 },
+                  { dayOfWeek: 5, name: "Thu", Sales: 0 },
+                  { dayOfWeek: 6, name: "Fri", Sales: 0 },
+                  { dayOfWeek: 7, name: "Sat", Sales: 0 }
+                ]
+              }
+            }
+          ],
+          salesData: [{ $project: { dayOfWeek: 1, Sales: "$totalSales" } }]
+        }
+      },
+      {
+        // Step 5: Merge sales data with all days
+        $project: {
+          mergedDays: {
+            $map: {
+              input: { $arrayElemAt: ["$allDays.days", 0] },
+              as: "day",
+              in: {
+                $mergeObjects: [
+                  "$$day",
+                  {
+                    $arrayElemAt: [
+                      {
+                        $filter: {
+                          input: "$salesData",
+                          as: "sale",
+                          cond: { $eq: ["$$sale.dayOfWeek", "$$day.dayOfWeek"] }
+                        }
+                      },
+                      0
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        // Step 6: Final projection for output
+        $unwind: "$mergedDays"
+      },
+      {
+        $replaceRoot: { newRoot: "$mergedDays" }
+      },
+      {
+        $sort: { dayOfWeek: 1 }
+      }
+    ]).toArray();
+
     // Send the computed data as a response
     return res.json({
       totalSales,
       averageOrderValue,
       conversionRate,
       salesGrowth,
-      salesOverview
+      salesOverview,
+      salesByCategory,
+      dailySalesTrend
     });
   } catch (err) {
     console.error('Error occurred:', err);
