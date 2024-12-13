@@ -119,7 +119,7 @@ router.post("/", verifyToken('admin'), async (req, res) => {
             $gte: new Date("2024-01-01T00:00:00Z"),
             $lt: new Date("2024-12-31T23:59:59Z")
           },
-          "order_status": "Completed"
+          "order_status": "Delivered"
         }
       },
       {
@@ -339,72 +339,5 @@ router.post("/", verifyToken('admin'), async (req, res) => {
     return res.status(500).json({ error: 'An error occurred while fetching the overview data.' });
   }
 });
-
-// router.get("/getProducts", verifyToken('admin'), (req, res) => {
-//   const db = mongoose.connection;
-
-//   db.collection("tos_products").aggregate([
-//     {
-//       $lookup: {
-//         from: "tos_stock_and_sales",
-//         localField: "_id",
-//         foreignField: "product_id",
-//         as: "productDetails"
-//       }
-//     },
-//     {
-//       $unwind: {
-//         path: "$productDetails",
-//         preserveNullAndEmptyArrays: true
-//       }
-//     },
-//     {
-//       $project: {
-//         _id: "$productDetails.product_id",
-//         name: "$name",
-//         price: "$price",
-//         category: "$category",
-//         stock: "$productDetails.stock",
-//         sales: "$productDetails.sales"
-//       }
-//     }
-//   ]).toArray().then((response) => {
-//     return res.send(response);
-//   }).catch((error) => {
-//     console.error(error);
-//   })
-// });
-
-// router.post("/addNew", verifyToken('admin'), (req, res) => {
-//   const ProductData = req.body;
-//   const db = mongoose.connection;
-
-//   db.collection("tos_products").insertOne(
-//     {
-//       name: ProductData.name,
-//       brandName: ProductData.brandName,
-//       price: ProductData.price,
-//       category: ProductData.category,
-//       size: ProductData.size,
-//       image: ProductData.image,
-//       featured: false,
-//       desc: ProductData.desc
-//     }
-//   ).then((response) => {
-//     if (response.insertedId) {
-//       db.collection("tos_stock_and_sales").insertOne(
-//         {
-//           product_id: response.insertedId,
-//           stock: ProductData.stock,
-//           sales: 0,
-//           last_update_date: new Date()
-//         }
-//       );
-//     }
-//     return res.send(response);
-//   }).catch((error) => {
-//     console.error(error);
-//   })
-// });
 
 module.exports = router;
