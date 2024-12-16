@@ -19,6 +19,7 @@ const adminProductsRoutes = require("./routes/admin-routes/adminProductsRoutes")
 const adminUsersRoutes = require("./routes/admin-routes/adminUsersRoutes");
 const adminSalesRoutes = require("./routes/admin-routes/adminSalesRoutes");
 const adminOrdersRoutes = require("./routes/admin-routes/adminOrdersRoutes");
+const adminAnalyticsRoutes = require("./routes/admin-routes/adminAnalyticsRoutes");
 
 dotenv.config();
 const app = express();
@@ -56,6 +57,7 @@ app.use("/api/admin/products", adminProductsRoutes);
 app.use("/api/admin/users", adminUsersRoutes);
 app.use("/api/admin/sales", adminSalesRoutes);
 app.use("/api/admin/orders", adminOrdersRoutes);
+app.use("/api/admin/analytics", adminAnalyticsRoutes);
 
 
 // Start the server
