@@ -11,7 +11,7 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await db.collection("tos_users").findOne({ email });
+    const user = await db.collection("toa_users").findOne({ email });
     if (!user || user.role !== 'admin') {
       return res.status(403).json({ message: 'Access Denied: Admins only' });
     }

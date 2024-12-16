@@ -30,7 +30,7 @@ route.post("/login", async (req, res) => {
 
   try {
     // Find user by email
-    const user = await db.collection("tos_users").findOne({ email });
+    const user = await db.collection("toa_users").findOne({ email });
     if (!user) {
       return res.status(400).send('Your Email is incorrect');
     }
@@ -158,7 +158,7 @@ route.post("/verify-otp", async (req, res) => {
     delete otpStore[email];
 
     // Generate JWT Token after OTP verification
-    const user = await db.collection("tos_users").findOne({ email });
+    const user = await db.collection("toa_users").findOne({ email });
 
     if (user.role === 'admin') {
       return res.status(403).send("Access Denied");
@@ -174,13 +174,13 @@ route.post("/verify-otp", async (req, res) => {
 
     const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '24h' });
 
-    const userActiveLogFind = await db.collection("tos_users_activity").findOne({ userId: new ObjectId(user._id) });
+    const userActiveLogFind = await db.collection("toa_users_activity").findOne({ userId: new ObjectId(user._id) });
     if (userActiveLogFind) {
-      db.collection("tos_users_activity").updateOne(
+      db.collection("toa_users_activity").updateOne(
         { userId: new ObjectId(user._id) },
         { $set: { lastLogin: new Date() } });
     } else {
-      db.collection("tos_users_activity").insertOne(
+      db.collection("toa_users_activity").insertOne(
         {
           userId: new ObjectId(user._id),
           lastLogin: new Date(),

@@ -9,13 +9,13 @@ route.get("/:client_id", verifyToken(), (req, res) => {
   const client_id = req.params.client_id;
   const db = mongoose.connection;
 
-  db.collection("tos_wishlist").aggregate([
+  db.collection("toa_wishlist").aggregate([
     {
       $match: { client_id: new ObjectId(client_id) }
     },
     {
       $lookup: {
-        from: "tos_products",
+        from: "toa_products",
         localField: "product_id",
         foreignField: "_id",
         as: "wishlists"
@@ -23,7 +23,7 @@ route.get("/:client_id", verifyToken(), (req, res) => {
     },
     {
       $lookup: {
-        from: "tos_gift_products",
+        from: "toa_gift_products",
         localField: "product_id",
         foreignField: "_id",
         as: "giftProductsList"
@@ -67,7 +67,7 @@ route.post("/add-wishlist", verifyToken(), (req, res) => {
   const { product_id, client_id } = req.body;
   const db = mongoose.connection;
 
-  db.collection("tos_wishlist")
+  db.collection("toa_wishlist")
     .countDocuments({ product_id: new ObjectId(product_id), client_id: new ObjectId(client_id) })
     .then((count) => {
       if (count > 0) {
@@ -75,7 +75,7 @@ route.post("/add-wishlist", verifyToken(), (req, res) => {
         return res.status(400).json({ message: 'This product is already in your wishlist' });
       } else {
         // Add the product to wishlist
-        db.collection("tos_wishlist")
+        db.collection("toa_wishlist")
           .insertOne({
             product_id: new ObjectId(product_id),
             client_id: new ObjectId(client_id),
@@ -99,7 +99,7 @@ route.delete("/:client_id/:product_id", verifyToken(), (req, res) => {
   const { product_id, client_id } = req.params;
   const db = mongoose.connection;
 
-  db.collection("tos_wishlist").deleteOne({
+  db.collection("toa_wishlist").deleteOne({
     product_id: new ObjectId(product_id),
     client_id: new ObjectId(client_id)
   })

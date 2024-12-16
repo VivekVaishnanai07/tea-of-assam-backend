@@ -10,14 +10,14 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const db = mongoose.connection;
 
     // Total Sales
-    const totalSalesResult = await db.collection('tos_orders').aggregate([
+    const totalSalesResult = await db.collection('toa_orders').aggregate([
       { $match: { payment_method: "UPI" } || { payment_method: "CARD" } }, // Adjust status as needed
       { $group: { _id: 0, totalSales: { $sum: "$order_total" } } }
     ]).toArray();
     const totalSales = totalSalesResult.length > 0 ? totalSalesResult[0].totalSales : 0;
 
     // New Users (users who registered in the past 30 days)
-    const newUsersResult = await db.collection("tos_users").aggregate([
+    const newUsersResult = await db.collection("toa_users").aggregate([
       {
         "$match": {
           "createdAt": {
@@ -32,18 +32,18 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const newUsers = newUsersResult.length > 0 ? newUsersResult[0].new_users_count : 0;
 
     // Total Products
-    const totalProductsResult = await db.collection('tos_products').aggregate([
+    const totalProductsResult = await db.collection('toa_products').aggregate([
       { $count: "totalProducts" }
     ]).toArray();
     const totalProducts = totalProductsResult.length > 0 ? totalProductsResult[0].totalProducts : 0;
 
     // Conversion Rate
-    const totalUsers = await db.collection('tos_users').countDocuments();  // Total users
-    const usersWithOrders = (await db.collection('tos_orders').distinct("client_id")).length;
+    const totalUsers = await db.collection('toa_users').countDocuments();  // Total users
+    const usersWithOrders = (await db.collection('toa_orders').distinct("client_id")).length;
     const conversionRate = totalUsers > 0 ? (usersWithOrders / totalUsers) * 100 : 0;
 
     // Sales Overview
-    const salesOverview = await db.collection("tos_orders").aggregate([
+    const salesOverview = await db.collection("toa_orders").aggregate([
       {
         $addFields: {
           order_date: { $toDate: "$order_date" }
@@ -101,7 +101,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     ]).toArray();
 
     // Category Distribution
-    const categoryDistribution = await db.collection("tos_products").aggregate([
+    const categoryDistribution = await db.collection("toa_products").aggregate([
       {
         $group: {
           _id: "$category",

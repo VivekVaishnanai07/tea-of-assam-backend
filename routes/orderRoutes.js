@@ -11,7 +11,7 @@ route.get("/:id", verifyToken(), (req, res) => {
   const clientId = req.params.id;
   const db = mongoose.connection;
 
-  db.collection("tos_orders").find({ client_id: new ObjectId(clientId) }).toArray().then((response) => {
+  db.collection("toa_orders").find({ client_id: new ObjectId(clientId) }).toArray().then((response) => {
     res.send(response)
   })
     .catch((error) => {
@@ -24,7 +24,7 @@ route.get("/track/:id", verifyToken(), (req, res) => {
   const orderId = req.params.id;
   const db = mongoose.connection;
 
-  db.collection("tos_orders").findOne({ _id: new ObjectId(orderId) }).then((response) => {
+  db.collection("toa_orders").findOne({ _id: new ObjectId(orderId) }).then((response) => {
     res.send(response)
   })
     .catch((error) => {
@@ -138,20 +138,20 @@ route.post("/place-order", verifyToken(), async (req, res) => {
     orderDocument.card_cvv = orderData.cvv;
   }
 
-  await db.collection("tos_orders")
+  await db.collection("toa_orders")
     .insertOne(orderDocument)
     .then(async (response) => {
       if (response.insertedId) {
-        db.collection("tos_cart").deleteMany({ client_id: new ObjectId(orderData.clientId) })
+        db.collection("toa_cart").deleteMany({ client_id: new ObjectId(orderData.clientId) })
 
         // User Activity Log
-        db.collection("tos_users_activity").updateOne(
+        db.collection("toa_users_activity").updateOne(
           { userId: new ObjectId(orderData.clientId) },
           { $set: { lastPurchase: new Date() } });
 
         // Update Stock and Sales
         for (const item of orderData.products) {
-          await db.collection("tos_stock_and_sales").updateOne(
+          await db.collection("toa_stock_and_sales").updateOne(
             { "product_id": new ObjectId(item.product_id) },
             {
               $inc: {
@@ -353,7 +353,7 @@ route.post("/order-payment", verifyToken(), async (req, res) => {
       }
 
       // Update the document in a single operation
-      const result = await db.collection("tos_orders").updateOne(
+      const result = await db.collection("toa_orders").updateOne(
         { _id: new ObjectId(orderData.orderId), client_id: new ObjectId(orderData.clientId) },
         { $set: updateFields }
       );

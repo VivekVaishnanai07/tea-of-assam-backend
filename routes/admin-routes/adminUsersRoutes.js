@@ -9,11 +9,11 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const db = mongoose.connection;
 
     // Total Users
-    const totalUsersResult = await db.collection("tos_users").aggregate([{ $count: "totalUsers" }]).toArray();
+    const totalUsersResult = await db.collection("toa_users").aggregate([{ $count: "totalUsers" }]).toArray();
     const totalUsers = totalUsersResult[0]?.totalUsers || 0;
 
     // New Users Today
-    const newUsersTodayResult = await db.collection("tos_users").aggregate([
+    const newUsersTodayResult = await db.collection("toa_users").aggregate([
       {
         $match: {
           createdAt: {
@@ -27,12 +27,12 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const newUsersToday = newUsersTodayResult[0]?.newUsersToday || 0;
 
     // Active Users
-    const activeUsers = await db.collection("tos_users_activity").countDocuments({
+    const activeUsers = await db.collection("toa_users_activity").countDocuments({
       lastActivity: { $gte: new Date(new Date().setDate(new Date().getDate() - 7)) }
     });
 
     // Churn Rate
-    const churnRate = await db.collection("tos_users_activity").countDocuments({
+    const churnRate = await db.collection("toa_users_activity").countDocuments({
       $and: [
         { lastLogin: { $lt: new Date(new Date().setDate(new Date().getDate() - 30)) } },
         { lastPurchase: { $lt: new Date(new Date().setDate(new Date().getDate() - 30)) } }
@@ -40,7 +40,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     });
 
     // User Growth
-    const userGrowth = await db.collection("tos_users").aggregate([
+    const userGrowth = await db.collection("toa_users").aggregate([
       { $project: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } } },
       { $match: { year: 2024 } },
       { $group: { _id: { year: "$year", month: "$month" }, newUsers: { $sum: 1 } } },
@@ -49,7 +49,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     ]).toArray();
 
     // User Activity Heatmap
-    const userActivityHeatMap = await db.collection("tos_users_activity").aggregate([
+    const userActivityHeatMap = await db.collection("toa_users_activity").aggregate([
       {
         $project: {
           dayOfWeek: { $dayOfWeek: "$lastActivity" },
@@ -82,7 +82,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     ]).toArray();
 
     // User Demographics
-    const userDemographics = await db.collection("tos_users").aggregate([
+    const userDemographics = await db.collection("toa_users").aggregate([
       {
         $addFields: {
           age: { $floor: { $divide: [{ $subtract: [new Date(), "$dateOfBirth"] }, 31557600000] } }
@@ -116,10 +116,10 @@ router.get("/", verifyToken('admin'), async (req, res) => {
 
 router.get("/getUsers", verifyToken('admin'), (req, res) => {
   const db = mongoose.connection;
-  // db.collection("tos_users").aggregate([
+  // db.collection("toa_users").aggregate([
   //   {
   //     $lookup: {
-  //       from: "tos_stock_and_sales",
+  //       from: "toa_stock_and_sales",
   //       localField: "_id",
   //       foreignField: "product_id",
   //       as: "productDetails"
@@ -143,7 +143,7 @@ router.get("/getUsers", verifyToken('admin'), (req, res) => {
   //   }
   // ]).toArray()
 
-  db.collection("tos_users").find().toArray().then((response) => {
+  db.collection("toa_users").find().toArray().then((response) => {
     return res.send(response);
   }).catch((error) => {
     console.error(error);
@@ -154,7 +154,7 @@ router.post("/addNew", verifyToken('admin'), (req, res) => {
   const userData = req.body;
   const db = mongoose.connection;
 
-  db.collection("tos_users").insertOne(
+  db.collection("toa_users").insertOne(
     {
       email: userData.email,
       mobileNumber: userData.mobileNumber,

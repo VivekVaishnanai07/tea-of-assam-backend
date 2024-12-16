@@ -9,7 +9,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const db = mongoose.connection;
 
     // Total Revenue
-    const totalRevenueResult = await db.collection("tos_orders").aggregate([
+    const totalRevenueResult = await db.collection("toa_orders").aggregate([
       {
         $group: {
           _id: null,
@@ -21,17 +21,17 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const totalRevenue = totalRevenueResult[0]?.totalRevenue || 0; // Directly get the number
 
     // Total Products
-    const totalProductsResult = await db.collection("tos_products").aggregate([
+    const totalProductsResult = await db.collection("toa_products").aggregate([
       { $count: "totalProducts" }
     ]).toArray();
 
     const totalProducts = totalProductsResult[0]?.totalProducts || 0;
 
     // Top Selling Products
-    const topSelling = await db.collection("tos_stock_and_sales").countDocuments({ sales: { $gt: 4 } });
+    const topSelling = await db.collection("toa_stock_and_sales").countDocuments({ sales: { $gt: 4 } });
 
     // Low Stock Products
-    const lowStock = await db.collection("tos_stock_and_sales").countDocuments({ stock: { $lt: 30 } });
+    const lowStock = await db.collection("toa_stock_and_sales").countDocuments({ stock: { $lt: 30 } });
 
     // Send the computed data as a response
     return res.json({
@@ -49,10 +49,10 @@ router.get("/", verifyToken('admin'), async (req, res) => {
 router.get("/getProducts", verifyToken('admin'), (req, res) => {
   const db = mongoose.connection;
 
-  db.collection("tos_products").aggregate([
+  db.collection("toa_products").aggregate([
     {
       $lookup: {
-        from: "tos_stock_and_sales",
+        from: "toa_stock_and_sales",
         localField: "_id",
         foreignField: "product_id",
         as: "productDetails"
@@ -85,7 +85,7 @@ router.post("/addNew", verifyToken('admin'), (req, res) => {
   const ProductData = req.body;
   const db = mongoose.connection;
 
-  db.collection("tos_products").insertOne(
+  db.collection("toa_products").insertOne(
     {
       name: ProductData.name,
       brandName: ProductData.brandName,
@@ -98,7 +98,7 @@ router.post("/addNew", verifyToken('admin'), (req, res) => {
     }
   ).then((response) => {
     if (response.insertedId) {
-      db.collection("tos_stock_and_sales").insertOne(
+      db.collection("toa_stock_and_sales").insertOne(
         {
           product_id: response.insertedId,
           stock: ProductData.stock,

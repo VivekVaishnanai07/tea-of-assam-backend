@@ -9,13 +9,13 @@ route.get("/:client_id", verifyToken(), (req, res) => {
   const client_id = req.params.client_id;
   const db = mongoose.connection;
 
-  db.collection("tos_cart").aggregate([
+  db.collection("toa_cart").aggregate([
     {
       $match: { client_id: new ObjectId(client_id) }
     },
     {
       $lookup: {
-        from: "tos_products",
+        from: "toa_products",
         localField: "product_id",
         foreignField: "_id",
         as: "cartProductsList"
@@ -23,7 +23,7 @@ route.get("/:client_id", verifyToken(), (req, res) => {
     },
     {
       $lookup: {
-        from: "tos_gift_products",
+        from: "toa_gift_products",
         localField: "product_id",
         foreignField: "_id",
         as: "giftProductsList"
@@ -68,12 +68,12 @@ route.post("/add-cart", verifyToken(), (req, res) => {
   const { product_id, client_id, quantity } = req.body;
   const db = mongoose.connection;
 
-  db.collection("tos_cart")
+  db.collection("toa_cart")
     .countDocuments({ product_id: new ObjectId(product_id), client_id: new ObjectId(client_id) })
     .then((count) => {
       if (count > 0) {
         // Product already then increase count of quantity
-        db.collection("tos_cart")
+        db.collection("toa_cart")
           .updateOne(
             { product_id: new ObjectId(product_id), client_id: new ObjectId(client_id) },
             { $inc: { quantity: quantity } } // Increase the quantity by the given amount
@@ -87,7 +87,7 @@ route.post("/add-cart", verifyToken(), (req, res) => {
           });
       } else {
         // Add the product to cart
-        db.collection("tos_cart")
+        db.collection("toa_cart")
           .insertOne({
             product_id: new ObjectId(product_id),
             client_id: new ObjectId(client_id),
@@ -112,7 +112,7 @@ route.delete("/:client_id/:product_id", verifyToken(), (req, res) => {
   const { product_id, client_id } = req.params;
   const db = mongoose.connection;
 
-  db.collection("tos_cart").deleteOne({
+  db.collection("toa_cart").deleteOne({
     product_id: new ObjectId(product_id),
     client_id: new ObjectId(client_id)
   })
@@ -133,7 +133,7 @@ route.patch("/increase-quantity/:client_id/:product_id", verifyToken(), (req, re
   const { client_id, product_id } = req.params;
   const db = mongoose.connection;
 
-  db.collection("tos_cart").updateOne(
+  db.collection("toa_cart").updateOne(
     { client_id: new ObjectId(client_id), product_id: new ObjectId(product_id) },
     { $inc: { quantity: 1 } } // Increment the quantity by 1
   )
@@ -154,7 +154,7 @@ route.patch("/decrease-quantity/:client_id/:product_id", verifyToken(), (req, re
   const { client_id, product_id } = req.params;
   const db = mongoose.connection;
 
-  db.collection("tos_cart").findOneAndUpdate(
+  db.collection("toa_cart").findOneAndUpdate(
     {
       client_id: new ObjectId(client_id),
       product_id: new ObjectId(product_id),

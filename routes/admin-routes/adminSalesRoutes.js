@@ -10,7 +10,7 @@ router.post("/", verifyToken('admin'), async (req, res) => {
     const db = mongoose.connection;
 
     // Total Sales
-    const totalRevenueResult = await db.collection("tos_orders").aggregate([
+    const totalRevenueResult = await db.collection("toa_orders").aggregate([
       {
         $group: {
           _id: null,
@@ -22,7 +22,7 @@ router.post("/", verifyToken('admin'), async (req, res) => {
     const totalSales = totalRevenueResult[0]?.totalSales || 0;
 
     // Average Order Value
-    const averageOrderValueResult = await db.collection("tos_orders").aggregate([
+    const averageOrderValueResult = await db.collection("toa_orders").aggregate([
       {
         $group: {
           _id: null,
@@ -40,7 +40,7 @@ router.post("/", verifyToken('admin'), async (req, res) => {
     const averageOrderValue = averageOrderValueResult[0]?.AOV || 0;
 
     // Conversion Rate
-    const conversionRateResult = await db.collection("tos_orders").aggregate([
+    const conversionRateResult = await db.collection("toa_orders").aggregate([
       {
         $group: {
           _id: "$client_id",  // Grouping by customer ID
@@ -53,7 +53,7 @@ router.post("/", verifyToken('admin'), async (req, res) => {
     ]).toArray();
 
     const totalCustomers = conversionRateResult[0]?.totalCustomers || 0;
-    const totalOrder = await db.collection("tos_orders").countDocuments({});
+    const totalOrder = await db.collection("toa_orders").countDocuments({});
     const conversionRate = (totalOrder / totalCustomers) * 100;
 
     // Sales Growth (Sales for Current Month)
@@ -78,7 +78,7 @@ router.post("/", verifyToken('admin'), async (req, res) => {
     const currentMonthDates = getFirstAndLastDateOfMonth(new Date().getFullYear(), new Date().getMonth());
     const lastMonthDates = getFirstAndLastDateOfMonth(new Date().getMonth() === 0 ? new Date().getFullYear() - 1 : new Date().getFullYear(), new Date().getMonth() === 0 ? 11 : new Date().getMonth() - 1);
 
-    const currentMonthRevenue = await db.collection("tos_orders").aggregate([
+    const currentMonthRevenue = await db.collection("toa_orders").aggregate([
       {
         $match: {
           order_date: { $gte: new Date(currentMonthDates.firstDate), $lt: new Date(currentMonthDates.lastDate) }
@@ -92,7 +92,7 @@ router.post("/", verifyToken('admin'), async (req, res) => {
       }
     ]).toArray();
 
-    const previousMonthRevenue = await db.collection("tos_orders").aggregate([
+    const previousMonthRevenue = await db.collection("toa_orders").aggregate([
       {
         $match: {
           order_date: { $gte: new Date(lastMonthDates.firstDate), $lt: new Date(lastMonthDates.lastDate) }
@@ -208,13 +208,13 @@ router.post("/", verifyToken('admin'), async (req, res) => {
     ];
 
     // Run the aggregation query
-    const salesOverview = await db.collection("tos_orders").aggregate(aggregationPipeline).toArray();
+    const salesOverview = await db.collection("toa_orders").aggregate(aggregationPipeline).toArray();
 
     // Category Distribution
-    const salesByCategory = await db.collection("tos_products").aggregate([
+    const salesByCategory = await db.collection("toa_products").aggregate([
       {
         $lookup: {
-          from: "tos_stock_and_sales",
+          from: "toa_stock_and_sales",
           localField: "_id",
           foreignField: "product_id",
           as: "stock_sales_data"
@@ -238,7 +238,7 @@ router.post("/", verifyToken('admin'), async (req, res) => {
       }
     ]).toArray();
 
-    const dailySalesTrend = await db.collection("tos_stock_and_sales").aggregate([
+    const dailySalesTrend = await db.collection("toa_stock_and_sales").aggregate([
       {
         // Step 1: Filter records by the current week
         $match: {

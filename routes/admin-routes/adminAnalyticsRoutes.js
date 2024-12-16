@@ -9,7 +9,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const db = mongoose.connection;
 
     // Revenue
-    const revenueResult = await db.collection("tos_orders").aggregate([
+    const revenueResult = await db.collection("toa_orders").aggregate([
       {
         $unwind: "$products"
       },
@@ -26,21 +26,21 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     ]).toArray();
 
     // Users
-    const users = await db.collection("tos_users").aggregate([
+    const users = await db.collection("toa_users").aggregate([
       {
         $count: "total_users"
       }
     ]).toArray();
 
     // Orders 
-    const orders = await db.collection("tos_orders").aggregate([
+    const orders = await db.collection("toa_orders").aggregate([
       {
         $count: "total_orders"
       }
     ]).toArray();
 
     // Page Views
-    const pageViews = await db.collection("tos_users_activity").aggregate([
+    const pageViews = await db.collection("toa_users_activity").aggregate([
       {
         $count: "total_page_views"
       }
@@ -57,7 +57,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const currentYear = new Date().getFullYear();
     const monthlyTargets = [3000, 8000, 5000, 40000, 7500, 4000, 5500, 5500, 6800, 10000, 15200, 40000];
 
-    const revenueAndTarget = await db.collection("tos_orders").aggregate([
+    const revenueAndTarget = await db.collection("toa_orders").aggregate([
       {
         // Match orders for the current year
         $match: {
@@ -96,7 +96,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     ]).toArray();
 
     // Product Performance
-    const productPerformanceResult = await db.collection("tos_orders").aggregate([
+    const productPerformanceResult = await db.collection("toa_orders").aggregate([
       {
         $unwind: "$products"
       },

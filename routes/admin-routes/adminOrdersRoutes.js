@@ -9,16 +9,16 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     const db = mongoose.connection;
 
     // Total Pending Orders
-    const totalOrders = await db.collection("tos_orders").countDocuments({});
+    const totalOrders = await db.collection("toa_orders").countDocuments({});
 
     // Total Pending Orders
-    const totalPendingOrders = await db.collection("tos_orders").countDocuments({ order_status: { $in: ["Pending", "Processing"] } });
+    const totalPendingOrders = await db.collection("toa_orders").countDocuments({ order_status: { $in: ["Pending", "Processing"] } });
 
     // Total Completed Orders
-    const totalCompletedOrders = await db.collection("tos_orders").countDocuments({ order_status: "Delivered" });
+    const totalCompletedOrders = await db.collection("toa_orders").countDocuments({ order_status: "Delivered" });
 
     // Total Orders Revenue
-    const totalOrdersRevenueResult = await db.collection("tos_orders").aggregate([
+    const totalOrdersRevenueResult = await db.collection("toa_orders").aggregate([
       {
         $match: { order_status: "Delivered" }
       },
@@ -50,7 +50,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     }
 
     // MongoDB Query
-    const dailyOrdersResult = await db.collection("tos_orders").aggregate([
+    const dailyOrdersResult = await db.collection("toa_orders").aggregate([
       {
         $match: {
           order_date: {
@@ -80,7 +80,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     });
 
     // Category Distribution
-    const categoryDistribution = await db.collection("tos_orders").aggregate([
+    const categoryDistribution = await db.collection("toa_orders").aggregate([
       {
         $group: {
           _id: "$order_status",
@@ -102,7 +102,7 @@ router.get("/", verifyToken('admin'), async (req, res) => {
     ]).toArray();
 
     // Orders List
-    const ordersList = await db.collection("tos_orders").aggregate([
+    const ordersList = await db.collection("toa_orders").aggregate([
       {
         $project: {
           _id: 0,
