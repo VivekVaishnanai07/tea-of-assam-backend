@@ -40,92 +40,103 @@ route.post("/login", async (req, res) => {
       return res.status(400).send('Incorrect password');
     }
 
-    // Generate OTP and send it via email
-    const otp = Math.floor(100000 + Math.random() * 900000);  // Generate OTP
-    const mailOptions = {
-      from: 'teaofassamowner@gmail.com',
-      to: email,
-      subject: "Your OTP Code",
-      html: `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-        <title>Static Template</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
-      </head>
-      
-      <body style="margin: 0; font-family: 'Rubik', sans-serif; background: #f4f7ff; font-size: 14px;">
-        <div style="
-              width: 100%;
-              min-height: 100vh;
-              background: #f4f7ff;
-              background-image: url(https://plus.unsplash.com/premium_photo-1666865792992-4c0286ef070a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
-              background-repeat: no-repeat;
-              background-size: 100% 452px;
-              margin-bottom: 20px;
-              padding-bottom: 20px;
-              background-position: top center;
-              font-size: 14px;
-              color: #434343;
-            ">
-          <header style="padding: 32px;">
-            <table style="width: 100%">
-              <tbody>
-                <tr style="height: 0">
-                  <td>
-                    <img alt="" src="https://tea-of-assam.vercel.app/assets/headerlogo-pfT6lU7d.png" height="50px" />
-                  </td>
-                  <td style="text-align: right">
-                    <span style="font-size: 16px; line-height: 30px; color: #ffffff">${formatDate(new Date())}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </header>
-          <main>
-            <div
-              style="margin: 26px; padding: 26px; background: #ffffff; border-radius: 30px; text-align: center; display: flex; height: 450px; align-items: center; justify-content: center;">
-              <div style="width: 100%; max-width: 700px; margin: 0 auto">
-                <h1 style="margin: 0; font-size: 30px; font-weight: bold; color: #1f1f1f;"> Your OTP </h1>
-                <p style="margin: 0; margin-top: 17px; font-size: 18px; font-weight: 500;">Hey ${user.firstName}
-                  ${user.lastName},</p>
-                <p style="margin: 0; margin-top: 17px; font-weight: 500; font-size: 16px; letter-spacing: 0.56px;">
-                  Thank you for choosing Tea of Assam! To complete the procedure of changing your email address,
-                  please use the following OTP (One-Time Password). This OTP is valid for the next <span
-                    style="font-weight: 600; color: #1f1f1f;">5 minutes</span>.
-                  For your security, please do not share this code with anyone, including Tea of Assam employees.
-                  If you did not request this change, please contact our support team immediately.
-                </p>
-                <p
-                  style="margin: 0; margin-top: 60px; font-size: 40px; font-weight: 600; letter-spacing: 25px; color: #ba3d4f;">
-                  ${otp}</p>
+    if (user.role === 'admin') {
+      const token = jwt.sign(
+        { id: user._id, firstName: user.firstName, lastName: user.lastName, role: user.role },
+        process.env.JWT_SECRET_KEY,
+        { expiresIn: '24h' }
+      );
+      res.json({ token });
+    } else if (user.role === 'client') {
+      // Generate OTP and send it via email
+      const otp = Math.floor(100000 + Math.random() * 900000);  // Generate OTP
+      const mailOptions = {
+        from: 'teaofassamowner@gmail.com',
+        to: email,
+        subject: "Your OTP Code",
+        html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+          <title>Static Template</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+        </head>
+        
+        <body style="margin: 0; font-family: 'Rubik', sans-serif; background: #f4f7ff; font-size: 14px;">
+          <div style="
+                width: 100%;
+                min-height: 100vh;
+                background: #f4f7ff;
+                background-image: url(https://plus.unsplash.com/premium_photo-1666865792992-4c0286ef070a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
+                background-repeat: no-repeat;
+                background-size: 100% 452px;
+                margin-bottom: 20px;
+                padding-bottom: 20px;
+                background-position: top center;
+                font-size: 14px;
+                color: #434343;
+              ">
+            <header style="padding: 32px;">
+              <table style="width: 100%">
+                <tbody>
+                  <tr style="height: 0">
+                    <td>
+                      <img alt="" src="https://tea-of-assam.vercel.app/assets/headerlogo-pfT6lU7d.png" height="50px" />
+                    </td>
+                    <td style="text-align: right">
+                      <span style="font-size: 16px; line-height: 30px; color: #ffffff">${formatDate(new Date())}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </header>
+            <main>
+              <div
+                style="margin: 26px; padding: 26px; background: #ffffff; border-radius: 30px; text-align: center; display: flex; height: 450px; align-items: center; justify-content: center;">
+                <div style="width: 100%; max-width: 700px; margin: 0 auto">
+                  <h1 style="margin: 0; font-size: 30px; font-weight: bold; color: #1f1f1f;"> Your OTP </h1>
+                  <p style="margin: 0; margin-top: 17px; font-size: 18px; font-weight: 500;">Hey ${user.firstName}
+                    ${user.lastName},</p>
+                  <p style="margin: 0; margin-top: 17px; font-weight: 500; font-size: 16px; letter-spacing: 0.56px;">
+                    Thank you for choosing Tea of Assam! To complete the procedure of changing your email address,
+                    please use the following OTP (One-Time Password). This OTP is valid for the next <span
+                      style="font-weight: 600; color: #1f1f1f;">5 minutes</span>.
+                    For your security, please do not share this code with anyone, including Tea of Assam employees.
+                    If you did not request this change, please contact our support team immediately.
+                  </p>
+                  <p
+                    style="margin: 0; margin-top: 60px; font-size: 40px; font-weight: 600; letter-spacing: 25px; color: #ba3d4f;">
+                    ${otp}</p>
+                </div>
               </div>
-            </div>
-            <p style="max-width: 400px; margin: 0 auto; text-align: center; font-weight: 500; color: #8c8c8c;">Need help? Ask
-              at
-              <a href="mailto:teaofassam@gmail.com" style="color: #499fb6; text-decoration: none;">teaofassam@gmail.com</a> or
-              visit our
-              <a href="" target="_blank" style="color: #499fb6; text-decoration: none;">Help Center</a>
-            </p>
-          </main>
-          <footer
-            style="width: 100%; max-width: 490px; margin: 20px auto 20px; text-align: center; border-top: 1px solid #e6ebf1;">
-            <p style="margin: 0; font-size: 16px; font-weight: 600; color: #434343;">Tea Of Assam</p>
-            <p style="margin: 0; margin-top: 16px; color: #434343">Copyright © 2022 Company. All rights reserved.</p>
-          </footer>
-        </div>
-      </body>
-      </html>`
-    };
-    await sendEmail(mailOptions);
+              <p style="max-width: 400px; margin: 0 auto; text-align: center; font-weight: 500; color: #8c8c8c;">Need help? Ask
+                at
+                <a href="mailto:teaofassam@gmail.com" style="color: #499fb6; text-decoration: none;">teaofassam@gmail.com</a> or
+                visit our
+                <a href="" target="_blank" style="color: #499fb6; text-decoration: none;">Help Center</a>
+              </p>
+            </main>
+            <footer
+              style="width: 100%; max-width: 490px; margin: 20px auto 20px; text-align: center; border-top: 1px solid #e6ebf1;">
+              <p style="margin: 0; font-size: 16px; font-weight: 600; color: #434343;">Tea Of Assam</p>
+              <p style="margin: 0; margin-top: 16px; color: #434343">Copyright © 2022 Company. All rights reserved.</p>
+            </footer>
+          </div>
+        </body>
+        </html>`
+      };
+      await sendEmail(mailOptions);
 
-    otpStore[email] = { otp, expiresAt: Date.now() + 2 * 60 * 1000 };
-    return res.json({ message: 'OTP sent to your email address' });
+      otpStore[email] = { otp, expiresAt: Date.now() + 2 * 60 * 1000 };
+      return res.json({ message: 'OTP sent to your email address' });
+    } else {
+      return res.status(403).json({ message: 'Access Denied: Unknown role' });
+    }
   } catch (err) {
     console.error(err);
     res.status(500).send("Internal Server Error");
@@ -135,7 +146,6 @@ route.post("/login", async (req, res) => {
 // OTP Verification Route
 route.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
-  console.log(email);
   try {
     // Check if OTP exists for the provided email
     const storedOtp = otpStore[email];
